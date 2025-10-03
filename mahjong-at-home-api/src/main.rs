@@ -13,5 +13,5 @@ extern crate rocket;
 fn rocket() -> _ {
     rocket::build()
         .attach(Db::init())
-        .mount("/user", routes![user::signup])
+        .mount("/api/user", routes![user::signup])
 }

@@ -2,7 +2,7 @@
 
 diesel::table! {
     mahjong_user (id) {
-        id -> Oid,
+        id -> Int4,
         email -> Text,
         psd -> Text,
         token -> Nullable<Text>,

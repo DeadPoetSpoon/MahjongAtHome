@@ -10,7 +10,7 @@ use serde::Deserialize;
 #[derive(Queryable, Insertable)]
 #[diesel(table_name = schema::mahjong_user)]
 pub struct MahjongUser {
-    id: u32,
+    id: i32,
     email: String,
     psd: String,
     token: Option<String>,
@@ -20,14 +20,13 @@ pub struct MahjongUser {
 #[diesel(table_name = schema::mahjong_user)]
 #[serde(crate = "rocket::serde")]
 pub struct UserSignupInfo<'r> {
-    id: Option<u32>,
     email: &'r str,
     psd: &'r str,
 }
 
 #[post("/signup", data = "<sign_up_info>")]
 pub async fn signup(
-    mut sign_up_info: Json<UserSignupInfo<'_>>,
+    sign_up_info: Json<UserSignupInfo<'_>>,
     mut db: Connection<Db>,
 ) -> Result<Status, String> {
     let user_ids: QueryResult<i64> = mahjong_user::table
@@ -43,14 +42,6 @@ pub async fn signup(
     if user_ids > 0 {
         return Ok(Status::NotAcceptable);
     }
-    let max_id: u32 = mahjong_user::table
-        .select(mahjong_user::id)
-        .order(mahjong_user::id.desc())
-        .first(&mut db)
-        .await
-        .unwrap_or(0);
-    let insert_user_id = max_id + 1;
-    sign_up_info.0.id = Some(insert_user_id);
     let insert_id = insert_into(mahjong_user::table)
         .values(&sign_up_info.0)
         .execute(&mut db)
@@ -59,5 +50,5 @@ pub async fn signup(
         return Err(insert_id.err().unwrap().to_string());
     }
 
-    Ok(Status::Accepted)
+    Ok(Status::Ok)
 }
