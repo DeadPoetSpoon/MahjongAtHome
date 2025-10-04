@@ -7,7 +7,7 @@
         </template>
         <template #title><el-text>导航</el-text></template>
       </el-page-header>
-      <el-drawer v-model="isShowMenu" :with-header="false" direction="ltr" size="40%">
+      <el-drawer v-model="isShowMenu" :with-header="false" direction="ltr" size="100px">
         <el-scrollbar>
           <el-menu default-active="1" router>
             <el-menu-item index="1" route="/">

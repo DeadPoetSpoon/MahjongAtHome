@@ -66,5 +66,6 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    allowedHosts: ['frp-act.com'],
   },
 })

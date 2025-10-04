@@ -24,8 +24,8 @@ diesel::table! {
 
     user_role (name) {
         name -> Role,
-        allowed -> Nullable<Array<Nullable<Text>>>,
-        excepted -> Nullable<Array<Nullable<Text>>>,
+        allowed -> Array<Nullable<Text>>,
+        excepted -> Array<Nullable<Text>>,
     }
 }
 

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useUserStore } from '../stores/user.js'
 
 export const request = axios.create({
   baseURL: '/api',
@@ -9,6 +10,8 @@ export const request = axios.create({
 })
 request.interceptors.request.use(
   (config) => {
+    const userStore = useUserStore()
+    config.headers.Authorization = userStore.token
     return config
   },
   (error) => {

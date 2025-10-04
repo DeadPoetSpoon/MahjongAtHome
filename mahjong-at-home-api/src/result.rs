@@ -4,11 +4,13 @@ use rocket::serde::{Serialize, json::Json};
 
 pub type ApiResult<T> = Result<Json<ApiResultMsg<T>>, ()>;
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Clone, PartialEq, Eq)]
 #[serde(crate = "rocket::serde")]
 pub enum ApiResultCode {
     Success = 1,
     Failure = 2,
+    TokenExpired = 3,
+    NotAllowed = 4,
 }
 
 #[derive(Serialize, Clone)]
@@ -58,6 +60,10 @@ impl<T> ApiResultMsg<T> {
         }
     }
 
+    pub fn is_success(&self) -> bool {
+        self.code.eq(&ApiResultCode::Success)
+    }
+
     pub fn new_success_with_data(data: T) -> Self {
         ApiResultMsg::new(ApiResultCode::Success, None, Some(data))
     }
@@ -87,6 +93,11 @@ impl<T> ApiResultMsg<T> {
 
     pub fn failure(&mut self) -> &mut Self {
         self.code = ApiResultCode::Failure;
+        self
+    }
+
+    pub fn with_code(&mut self, code: ApiResultCode) -> &mut Self {
+        self.code = code;
         self
     }
 

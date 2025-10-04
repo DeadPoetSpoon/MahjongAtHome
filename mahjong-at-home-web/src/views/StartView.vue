@@ -23,6 +23,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { Signup, Login } from '../requests/api/user'
+import { useUserStore } from '../stores/user.js'
 
 const hasLogin = ref(false)
 const loginForm = reactive({
@@ -34,6 +35,12 @@ const onLogin = () => {
   Login(loginForm)
     .then((res) => {
       console.log('登录', res)
+      if (res.code == 'Success') {
+        let userStore = useUserStore()
+        userStore.token = res.data.token
+      } else {
+        console.log('登录失败: ', res.message)
+      }
     })
     .catch((err) => {
       console.error(err)
