@@ -1,41 +1,51 @@
 <template>
   <el-container class="main-layout">
-    <el-header class="main-header">Header</el-header>
-    <el-container class="main-inner-layout">
-      <el-aside class="main-aside">
+    <el-main>
+      <el-page-header class="custom-header" @back="onBack">
+        <template #icon>
+          <el-icon><Menu /></el-icon>
+        </template>
+        <template #title><el-text>导航</el-text></template>
+      </el-page-header>
+      <el-drawer v-model="isShowMenu" :with-header="false" direction="ltr" size="40%">
         <el-scrollbar>
           <el-menu default-active="1" router>
             <el-menu-item index="1" route="/">
               <el-icon><HomeFilled /></el-icon>
-              <template #title>主页</template>
+              <template #title><el-text>主页</el-text></template>
             </el-menu-item>
             <el-menu-item index="2" route="/settings">
               <el-icon><setting /></el-icon>
-              <template #title>设置</template>
+              <template #title><el-text>设置</el-text></template>
             </el-menu-item>
           </el-menu>
         </el-scrollbar>
-      </el-aside>
-      <el-main><slot /></el-main>
-    </el-container>
+      </el-drawer>
+      <slot />
+    </el-main>
   </el-container>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+
+const isShowMenu = ref(false)
+
+const onBack = () => {
+  isShowMenu.value = !isShowMenu.value
+}
+</script>
 <style scoped>
 .main-layout {
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--el-header-height));
 }
-
-.main-header {
-  display: flex;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
+:deep(.el-drawer__body) {
+  padding: 0px;
+  padding-top: 50px;
 }
-.main-aside {
-  max-width: 100px;
+.custom-header {
+  padding-bottom: 20px;
 }
 </style>

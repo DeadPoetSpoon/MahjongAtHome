@@ -1,4 +1,5 @@
 mod db;
+mod result;
 mod schema;
 mod user;
 
@@ -13,5 +14,5 @@ extern crate rocket;
 fn rocket() -> _ {
     rocket::build()
         .attach(Db::init())
-        .mount("/api/user", routes![user::signup])
+        .mount("/api/user", routes![user::signup, user::login])
 }

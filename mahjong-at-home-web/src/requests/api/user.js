@@ -7,3 +7,11 @@ export function Signup(body) {
     data: body,
   })
 }
+
+export function Login(body) {
+  return request({
+    url: `/user/login`,
+    method: 'post',
+    data: body,
+  })
+}
