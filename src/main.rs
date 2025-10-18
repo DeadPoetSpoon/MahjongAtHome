@@ -41,29 +41,29 @@ const FAVICON: Asset = asset!("/assets/favicon.ico");
 
 fn main() {
     // On the client we just launch the app as normal.
-    #[cfg(not(feature = "server"))]
+    // #[cfg(not(feature = "server"))]
     dioxus::launch(app);
 
     // On the server, we can use `dioxus::serve` and `.serve_dioxus_application` to serve our app with routing.
     // The `dioxus::server::router` function creates a new axum Router with the necessary routes to serve the Dioxus app.
-    #[cfg(feature = "server")]
-    dioxus::serve(|| async move {
-        use dioxus::server::axum::Extension;
-        use migration::{Migrator, MigratorTrait};
-        dioxus::logger::tracing::debug!("start connect to db");
-        let db =
-            Database::connect("postgres://spoon:mahjong_at_home@localhost:5432/mahjong_at_home")
-                .await
-                .expect("Failed to connect to database");
+    // #[cfg(feature = "server")]
+    // dioxus::serve(|| async move {
+    //     use dioxus::server::axum::Extension;
+    //     use migration::{Migrator, MigratorTrait};
+    //     dioxus::logger::tracing::debug!("start connect to db");
+    //     let db =
+    //         Database::connect("postgres://spoon:mahjong_at_home@localhost:5432/mahjong_at_home")
+    //             .await
+    //             .expect("Failed to connect to database");
 
-        dioxus::logger::tracing::debug!("finish connect to db");
-        dioxus::logger::tracing::debug!("start migrator up");
-        Migrator::up(&db, None)
-            .await
-            .expect("Failed to migrator up");
-        dioxus::logger::tracing::debug!("finish migrator up");
-        Ok(dioxus::server::router(app).layer(Extension(AppServerState { db })))
-    });
+    //     dioxus::logger::tracing::debug!("finish connect to db");
+    //     dioxus::logger::tracing::debug!("start migrator up");
+    //     Migrator::up(&db, None)
+    //         .await
+    //         .expect("Failed to migrator up");
+    //     dioxus::logger::tracing::debug!("finish migrator up");
+    //     Ok(dioxus::server::router(app).layer(Extension(AppServerState { db })))
+    // });
 }
 
 /// App is the main component of our app. Components are the building blocks of dioxus apps. Each component is a function
@@ -92,14 +92,57 @@ fn app() -> Element {
 mod entities;
 #[cfg(feature = "server")]
 use {
-    dioxus::fullstack::axum,
+    dioxus::fullstack::Lazy,
     sea_orm::{Database, DatabaseConnection},
 };
 #[cfg(feature = "server")]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct AppServerState {
     db: DatabaseConnection,
 }
 
+// #[cfg(feature = "server")]
+// type AppServerStateExtension = axum::Extension<AppServerState>;
+
+// #[cfg(feature = "server")]
+// static APPSTATE: LazyLock<tokio::sync::RwLock<AppServerState>> = std::sync::LazyLock::new(|| {
+//     let rt = tokio::runtime::Builder::new_current_thread()
+//         .build()
+//         .unwrap();
+//     let db = rt.block_on(async {
+//         use migration::{Migrator, MigratorTrait};
+//         let db =
+//             Database::connect("postgres://spoon:mahjong_at_home@localhost:5432/mahjong_at_home")
+//                 .await
+//                 .expect("Failed to connect to database");
+
+//         dioxus::logger::tracing::debug!("finish connect to db");
+//         dioxus::logger::tracing::debug!("start migrator up");
+//         Migrator::up(&db, None)
+//             .await
+//             .expect("Failed to migrator up");
+//         dioxus::logger::tracing::debug!("finish migrator up");
+//         db
+//     });
+//     tokio::sync::RwLock::new(AppServerState { db })
+// });
+
 #[cfg(feature = "server")]
-type AppServerStateExtension = axum::Extension<AppServerState>;
+static APPSTATE: Lazy<AppServerState> = Lazy::new(|| async move {
+    let (db,) = tokio::join!(async {
+        use migration::{Migrator, MigratorTrait};
+        let db =
+            Database::connect("postgres://spoon:mahjong_at_home@localhost:5432/mahjong_at_home")
+                .await
+                .expect("Failed to connect to database");
+
+        dioxus::logger::tracing::debug!("finish connect to db");
+        dioxus::logger::tracing::debug!("start migrator up");
+        Migrator::up(&db, None)
+            .await
+            .expect("Failed to migrator up");
+        dioxus::logger::tracing::debug!("finish migrator up");
+        db
+    });
+    dioxus::Ok(AppServerState { db })
+});

@@ -64,14 +64,11 @@ pub fn Login() -> Element {
 
 #[cfg(feature = "server")]
 use {
-    crate::entities::user,
-    dioxus::fullstack::ServerFnError,
-    dioxus::logger::tracing,
-    sea_orm::ActiveValue::Set,
-    sea_orm::{ActiveModelTrait, Database},
+    crate::entities::user, dioxus::fullstack::ServerFnError, dioxus::logger::tracing,
+    sea_orm::ActiveModelTrait, sea_orm::ActiveValue::Set,
 };
 
-#[post("/api/login",ext: crate::AppServerStateExtension)]
+#[server]
 async fn login_server(info: UserLoginInfo) -> ServerFnResult<()> {
     tracing::debug!("User login: {:?}", info.username);
     let user = user::ActiveModel {
@@ -79,7 +76,7 @@ async fn login_server(info: UserLoginInfo) -> ServerFnResult<()> {
         password: Set(info.password),
         ..Default::default()
     };
-    user.insert(&ext.db)
+    user.insert(&crate::APPSTATE.db)
         .await
         .map_err(|err| ServerFnError::ServerError {
             message: format!("DB Error {err:?}"),
