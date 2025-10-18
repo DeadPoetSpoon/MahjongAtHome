@@ -1,2 +1,0 @@
-# MahjongAtHome
-MahjongAtHome
