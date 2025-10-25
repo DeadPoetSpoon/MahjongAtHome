@@ -11,7 +11,8 @@ edition = "2021"
 members = [".", "migration"]
 
 [dependencies]
-dioxus = { git="https://github.com/dioxuslabs/dioxus", features = ["router", "fullstack"] }
+# dioxus = { git="https://github.com/dioxuslabs/dioxus", features = ["router", "fullstack"] }
+dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
 sea-orm = { version = "2.0.0-rc", features = ["sqlx-postgres", "runtime-tokio-rustls", "macros", "with-json", "with-chrono"], optional = true }
 serde = { version = "1.0.228", features = ["serde_derive"] }
 migration = {path = "./migration",optional=true}

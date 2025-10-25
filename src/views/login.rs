@@ -1,11 +1,12 @@
 use crate::models::user::UserLoginInfo;
+use crate::server;
 use dioxus::prelude::*;
 /// The Home page component that will be rendered when the current route is `[Route::Home]`
 #[component]
 pub fn Login() -> Element {
     let mut username = use_signal(|| String::new());
     let mut password = use_signal(|| String::new());
-    let mut login = use_action(login_server);
+    // let mut login = use_server_future(login_server);
     rsx! {
         main {
             class:"d-flex vh-100 w-100 align-items-center bg-body-tertiary form-signin m-auto justify-content-center",
@@ -49,40 +50,20 @@ pub fn Login() -> Element {
                 button {
                     class: "btn btn-primary w-100 py-2 my-4",
                     type: "button",
-                    onclick: move |_| {
-                        login.call(UserLoginInfo {
-                            username: username(),
-                            password: password(),
-                        });
+                    onclick: move |_| async move {
+                        let _ = server::login_server(UserLoginInfo { username:username(), password:password() }).await;
                     },
                     "Login"
+                }
+                button {
+                    class: "btn btn-secondary w-100 py-2",
+                    type: "button",
+                    onclick: move |_| async move {
+                        let _ = server::init_server().await;
+                    },
+                    "Init Server",
                 }
             }
         }
     }
-}
-
-#[cfg(feature = "server")]
-use {
-    crate::entities::user, dioxus::fullstack::ServerFnError, dioxus::logger::tracing,
-    sea_orm::ActiveModelTrait, sea_orm::ActiveValue::Set,
-};
-
-#[server]
-async fn login_server(info: UserLoginInfo) -> ServerFnResult<()> {
-    tracing::debug!("User login: {:?}", info.username);
-    let user = user::ActiveModel {
-        username: Set(info.username),
-        password: Set(info.password),
-        ..Default::default()
-    };
-    user.insert(&crate::APPSTATE.db)
-        .await
-        .map_err(|err| ServerFnError::ServerError {
-            message: format!("DB Error {err:?}"),
-            code: 500u16,
-            details: None,
-        })?;
-    tracing::debug!("Login finish");
-    Ok(())
 }
