@@ -1,3 +1,4 @@
+use crate::m20251025_081315_create_role::*;
 use sea_orm_migration::{prelude::*, schema::*};
 
 #[derive(DeriveMigrationName)]
@@ -12,8 +13,10 @@ impl MigrationTrait for Migration {
                     .table(User::Table)
                     .if_not_exists()
                     .col(pk_auto(User::Id))
-                    .col(string(User::Username))
+                    .col(string_uniq(User::Username))
                     .col(string(User::Password))
+                    .col(ColumnDef::new(User::Role).custom(RoleType::Type).not_null())
+                    .col(timestamp(User::CreatedAt).default(Expr::current_timestamp()))
                     .to_owned(),
             )
             .await
@@ -32,4 +35,6 @@ enum User {
     Id,
     Username,
     Password,
+    Role,
+    CreatedAt,
 }

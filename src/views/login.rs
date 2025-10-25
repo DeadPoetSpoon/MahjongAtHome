@@ -1,11 +1,12 @@
 use crate::models::user::UserLoginInfo;
-use crate::server;
+use crate::{server, Route};
 use dioxus::prelude::*;
-/// The Home page component that will be rendered when the current route is `[Route::Home]`
+
 #[component]
 pub fn Login() -> Element {
     let mut username = use_signal(|| String::new());
     let mut password = use_signal(|| String::new());
+    let navigator = use_navigator();
     // let mut login = use_server_future(login_server);
     rsx! {
         main {
@@ -19,7 +20,7 @@ pub fn Login() -> Element {
                     class: "form-floating",
                     input {
                         class: "form-control",
-                        type: "email",
+                        r#type: "email",
                         id: "floatingUsername",
                         placeholder: "user@math.com",
                         oninput: move |e| {
@@ -35,7 +36,7 @@ pub fn Login() -> Element {
                     class: "form-floating",
                     input {
                         class: "form-control",
-                        type: "password",
+                        r#type: "password",
                         id: "floatingPassword",
                         placeholder: "Password",
                         oninput: move |e| {
@@ -49,20 +50,16 @@ pub fn Login() -> Element {
                 }
                 button {
                     class: "btn btn-primary w-100 py-2 my-4",
-                    type: "button",
+                    r#type: "button",
                     onclick: move |_| async move {
-                        let _ = server::login_server(UserLoginInfo { username:username(), password:password() }).await;
+                        let user_info = server::login_server(UserLoginInfo { username:username(), password:password(),..Default::default() }).await;
+                        let user_info = user_info.unwrap();
+                        *super::USERINFO.write() = Some(user_info);
+                        navigator.push(Route::Dashboard{});
                     },
                     "Login"
                 }
-                button {
-                    class: "btn btn-secondary w-100 py-2",
-                    type: "button",
-                    onclick: move |_| async move {
-                        let _ = server::init_server().await;
-                    },
-                    "Init Server",
-                }
+
             }
         }
     }

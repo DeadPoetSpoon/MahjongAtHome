@@ -9,6 +9,7 @@
 //! a common wrapper around all child routes.
 
 mod home;
+
 pub use home::Home;
 
 mod blog;
@@ -19,3 +20,10 @@ pub use navbar::Navbar;
 
 mod login;
 pub use login::Login;
+
+mod dashboard;
+pub use dashboard::Dashboard;
+
+use crate::models::user::UserInfo;
+use dioxus::signals::{GlobalSignal, Signal};
+static USERINFO: GlobalSignal<Option<UserInfo>> = Signal::global(|| None);

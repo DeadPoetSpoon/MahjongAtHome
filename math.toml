@@ -1,0 +1,14 @@
+# onec run server, can not change
+# secret_key = "key_from_config"
+
+# only postgres
+# db_url = "postgres://user:password@ip:port/dbname"
+
+# Super admin username
+# super_username = "admin@math.com"
+
+# Super admin password
+# super_password = "password"
+
+# token expiration time after login
+token_exp_after = 1
