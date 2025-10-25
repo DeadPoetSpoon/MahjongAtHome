@@ -1,4 +1,0 @@
-[default]
-address = "0.0.0.0"
-[default.databases.mahjong_at_home]
-url = "postgres://spoon:mahjong_at_home@localhost:5432/mahjong_at_home"
