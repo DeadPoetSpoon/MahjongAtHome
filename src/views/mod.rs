@@ -24,6 +24,9 @@ pub use login::Login;
 mod dashboard;
 pub use dashboard::Dashboard;
 
+mod page_not_found;
+pub use page_not_found::PageNotFound;
+
 use crate::models::user::UserInfo;
 use dioxus::signals::{GlobalSignal, Signal};
 static USERINFO: GlobalSignal<Option<UserInfo>> = Signal::global(|| None);

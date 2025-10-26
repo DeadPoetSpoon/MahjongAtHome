@@ -2,7 +2,7 @@
 // need dioxus
 use dioxus::prelude::*;
 
-use views::{Blog, Dashboard, Home, Login, Navbar};
+use views::{Blog, Dashboard, Home, Login, Navbar, PageNotFound};
 
 /// Define a components module that contains all shared components for our app.
 mod components;
@@ -32,7 +32,8 @@ enum Route {
     #[end_layout]
     #[route("/login")]
     Login{},
-
+    #[route("/:..route")]
+    PageNotFound{route: Vec<String>},
 }
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
