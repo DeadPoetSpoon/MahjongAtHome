@@ -29,7 +29,7 @@ pub fn Dashboard() -> Element {
                         }
                         div {
                             id: "collapse-server-status",
-                            class: "accordion-collapse collapse",
+                            class: "accordion-collapse collapse show",
                             "data-bs-parent": "#dashboard",
                             div{
                                 class: "accordion-body",

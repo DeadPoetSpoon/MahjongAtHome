@@ -33,7 +33,7 @@ pub fn Login() -> Element {
                     }
                 }
                 div {
-                    class: "form-floating",
+                    class: "form-floating mt-2",
                     input {
                         class: "form-control",
                         r#type: "password",

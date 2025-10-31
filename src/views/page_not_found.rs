@@ -4,14 +4,12 @@ use crate::Route;
 
 #[component]
 pub fn PageNotFound(route: Vec<String>) -> Element {
+    let navigator = use_navigator();
+    navigator.push(Route::Home {});
     rsx! {
         div {
-            "Page Not Found"
-        }
-        Link {
-            class: "nav-link",
-            to: Route::Login {},
-            "Login"
+            h1 { "Page Not Found" }
+            p { "The page {route:?} you are looking for does not exist." }
         }
     }
 }

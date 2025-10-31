@@ -4,6 +4,8 @@ use dioxus::prelude::*;
 
 use views::{Blog, Dashboard, Home, Login, Navbar, PageNotFound};
 
+use crate::components::alert_view;
+
 /// Define a components module that contains all shared components for our app.
 mod components;
 mod models;
@@ -22,9 +24,9 @@ mod entities;
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
 enum Route {
-    #[route("/dashboard")]
-    Dashboard{},
     #[layout(Navbar)]
+        #[route("/dashboard")]
+        Dashboard{},
         #[route("/home")]
         Home {},
         #[route("/blog/:id")]
@@ -65,5 +67,6 @@ fn app() -> Element {
         // The router component renders the route enum we defined above. It will handle synchronization of the URL and render
         // the layouts and components for the active route.
         Router::<Route> {}
+        alert_view {  }
     }
 }

@@ -10,7 +10,7 @@ use dioxus::prelude::*;
 pub fn Navbar() -> Element {
     rsx! {
         nav {
-            class: "navbar navbar-expand-lg bg-body-tertiary",
+            class: "navbar navbar-expand bg-body-tertiary",
             div {
                 class: "container-fluid",
                 a {
@@ -46,6 +46,10 @@ pub fn Navbar() -> Element {
 
         // The `Outlet` component is used to render the next component inside the layout. In this case, it will render either
         // the [`Home`] or [`Blog`] component depending on the current route.
-        Outlet::<Route> {}
+        div {
+            class: "container-xxl bd-gutter mt-3 my-md-4 bd-layout",
+            Outlet::<Route> {}
+        }
+
     }
 }

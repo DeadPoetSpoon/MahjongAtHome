@@ -3,7 +3,13 @@
 //! component and an Echo component for fullstack apps to be used in our app.
 
 mod hero;
+use dioxus::signals::{GlobalSignal, Signal};
 pub use hero::hero_view;
 
 mod echo;
 pub use echo::echo_view;
+
+mod alert;
+pub use alert::*;
+
+pub static ALERTS: GlobalSignal<Vec<AlertInfo>> = Signal::global(|| Vec::new());
