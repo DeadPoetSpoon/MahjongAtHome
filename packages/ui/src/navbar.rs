@@ -8,6 +8,7 @@ pub fn Navbar(children: Element) -> Element {
         document::Link { rel: "stylesheet", href: MAIN_CSS }
 
         header {
+            class: "container",
             id: "navbar",
             nav {
                 ul{

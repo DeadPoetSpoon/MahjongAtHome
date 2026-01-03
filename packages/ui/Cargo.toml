@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 dioxus = { workspace = true , features=["html"]}
+dioxus-html = { version = "0.7.1", features = ["serialize"] }
 api = { workspace = true }
 
 [features]

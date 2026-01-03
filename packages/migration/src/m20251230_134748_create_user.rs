@@ -17,10 +17,7 @@ impl MigrationTrait for Migration {
                     .col(string_uniq(User::Username))
                     .col(string(User::Password))
                     .col(ColumnDef::new(User::Role).custom(RoleType::Type).not_null())
-                    .col(
-                        timestamp_with_time_zone(User::CreatedAt)
-                            .default(Expr::current_timestamp()),
-                    )
+                    .col(timestamp(User::CreatedAt).default(Expr::current_timestamp()))
                     .to_owned(),
             )
             .await

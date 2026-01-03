@@ -1,18 +1,24 @@
 use dioxus::prelude::*;
-
+use dioxus_fullstack::{FullstackContext, StatusCode};
 use ui::Navbar;
-use views::{Home, Login};
+use views::{Home, Login, Manage};
 
 mod views;
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 #[rustfmt::skip]
 enum Route {
-    #[layout(WebNavbar)]
+    #[layout(WebMainLayout)]
     #[route("/")]
     Home {},
     #[route("/login")]
     Login {},
+    #[route("/manage")]
+    Manage {},
+    #[route("/:..route")]
+    PageNotFound {
+        route: Vec<String>,
+    },
 }
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
@@ -44,7 +50,7 @@ fn main() {
             Default::default()
         };
 
-        match state.init_from_config(config).await {
+        match state.init(config).await {
             Ok(_) => {}
             Err(err) => {
                 panic!("init app state error: {:?}", err);
@@ -71,8 +77,9 @@ fn App() -> Element {
 /// A web-specific Router around the shared `Navbar` component
 /// which allows us to use the web-specific `Route` enum.
 #[component]
-fn WebNavbar() -> Element {
+fn WebMainLayout() -> Element {
     rsx! {
+
         Navbar {
             ul{
                 li{
@@ -95,14 +102,41 @@ fn WebNavbar() -> Element {
                                     "Login"
                                 }
                             }
+                            li {
+                                Link {
+                                    to: Route::Manage {},
+                                    "Manage"
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        main {
-
-            Outlet::<Route> {}
+        ErrorBoundary{
+            handle_error: move |err: ErrorContext| {
+                let http_error = FullstackContext::commit_error_status(err.error().unwrap());
+                match http_error.status {
+                    StatusCode::NOT_FOUND => rsx! { div { "404 - Page not found" } },
+                    StatusCode::UNAUTHORIZED => rsx! { div { "401 - Unauthorized" } },
+                    StatusCode::INTERNAL_SERVER_ERROR => rsx! { div { "500 - Internal Server Error" } },
+                    _ => rsx! { div { "An unknown error occurred" } },
+                }
+            },
+            main {
+                class:"container",
+                Outlet::<Route> {}
+            }
         }
+
+    }
+}
+
+#[component]
+fn PageNotFound(route: Vec<String>) -> Element {
+    rsx! {
+        h1 { "Page not found" }
+        p { "We are terribly sorry, but the page you requested doesn't exist." }
+        pre { color: "red", "log:\nattempted to navigate to: {route:?}" }
     }
 }

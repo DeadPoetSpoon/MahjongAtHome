@@ -1,23 +1,26 @@
-//! This crate contains all shared fullstack server functions.
-use dioxus::prelude::*;
-
 pub mod user;
-
+use dioxus::prelude::*;
 #[cfg(feature = "server")]
 mod entities;
 
 #[cfg(feature = "server")]
 use {
-    dioxus::fullstack::{extract::FromRef, FullstackContext},
-    dioxus::logger::tracing,
-    dioxus::Result,
-    sea_orm::{Database, DatabaseConnection},
+    crate::entities::sea_orm_active_enums::{RoleActionType, RoleType},
+    crate::entities::{prelude::Role, role},
+    dioxus::{
+        fullstack::{extract::FromRef, FullstackContext},
+        logger::tracing,
+        Result,
+    },
+    sea_orm::{
+        ActiveEnum, ColumnTrait, Database, DatabaseConnection, EntityTrait, PaginatorTrait,
+        QueryFilter,
+    },
 };
 
 #[cfg(feature = "server")]
 #[derive(Clone, Debug, Default)]
 pub struct AppServerState {
-    init_finished: bool,
     secret_key: String,
     db: DatabaseConnection,
     token_exp_after: usize,
@@ -25,7 +28,7 @@ pub struct AppServerState {
 }
 #[cfg(feature = "server")]
 impl AppServerState {
-    pub async fn init_from_config(&mut self, config: AppInitServerConfig) -> Result<()> {
+    pub async fn init(&mut self, config: AppInitServerConfig) -> Result<()> {
         let default_config = AppInitServerConfig::default();
         if config.token_exp_after.is_some() {
             self.token_exp_after = config.token_exp_after.unwrap();
@@ -99,8 +102,7 @@ impl AppServerState {
         }
 
         self.db = db;
-        self.init_finished = true;
-
+        self.session_id = uuid::Uuid::new_v4();
         tracing::debug!("INIT: AppServerState Init Finished: {:?}", self);
         Ok(())
     }
@@ -145,4 +147,52 @@ impl AppInitServerConfig {
 
         Ok(config)
     }
+}
+
+#[cfg(feature = "server")]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
+pub struct Claims {
+    id: i32,
+    role: String,
+    exp: usize,
+    session_id: uuid::Uuid,
+}
+
+#[cfg(feature = "server")]
+impl Claims {
+    fn get_role(&self) -> Result<RoleType> {
+        Ok(RoleType::try_from_value(&self.role)?)
+    }
+}
+
+#[cfg(feature = "server")]
+fn decode_token(token: &str, secret_key: &str) -> Result<Claims> {
+    let token_data = jsonwebtoken::decode::<Claims>(
+        token,
+        &jsonwebtoken::DecodingKey::from_secret(secret_key.as_bytes()),
+        &jsonwebtoken::Validation::default(),
+    )?;
+    let claims = token_data.claims;
+    Ok(claims)
+}
+
+#[cfg(feature = "server")]
+async fn verify_permission(
+    role: &RoleType,
+    action: &RoleActionType,
+    db: &DatabaseConnection,
+) -> Result<()> {
+    if role == &RoleType::SuperAdmin {
+        return Ok(());
+    }
+
+    let count = Role::find()
+        .filter(role::Column::Type.eq(role.to_value()))
+        .filter(role::Column::AllowAction.eq(action.to_value()))
+        .count(db)
+        .await?;
+    if count == 0 {
+        HttpError::forbidden("Permission denied")?;
+    }
+    Ok(())
 }

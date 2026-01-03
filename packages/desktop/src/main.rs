@@ -43,7 +43,7 @@ fn main() {
             Default::default()
         };
 
-        match state.init_from_config(config).await {
+        match state.init(config).await {
             Ok(_) => {}
             Err(err) => {
                 panic!("init app state error: {:?}", err);

@@ -11,3 +11,5 @@ pub use echo::Echo;
 
 mod login_form;
 pub use login_form::LoginForm;
+
+pub mod manage;
