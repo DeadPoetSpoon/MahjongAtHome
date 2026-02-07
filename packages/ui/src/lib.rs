@@ -13,3 +13,5 @@ mod login_form;
 pub use login_form::LoginForm;
 
 pub mod manage;
+
+pub mod info;

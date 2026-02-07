@@ -1,10 +1,11 @@
 use dioxus::prelude::*;
-use ui::{Echo, Hero};
+use ui::info::UserKeyInfoCard;
+use ui::Echo;
 
 #[component]
 pub fn Home() -> Element {
     rsx! {
-        Hero {}
+        UserKeyInfoCard { }
         Echo {}
     }
 }

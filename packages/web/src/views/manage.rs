@@ -14,7 +14,7 @@ pub fn Manage() -> Element {
                 summary {
                     "User Signup"
                 },
-                user::SignupForm{}
+                SignupForm{}
             }
 
         }

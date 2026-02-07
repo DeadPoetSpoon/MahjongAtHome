@@ -14,8 +14,8 @@ impl MigrationTrait for Migration {
                     .table(User::Table)
                     .if_not_exists()
                     .col(pk_auto(User::Id))
-                    .col(string_uniq(User::Username))
-                    .col(string(User::Password))
+                    .col(string_uniq(User::Username).not_null())
+                    .col(string(User::Password).not_null())
                     .col(ColumnDef::new(User::Role).custom(RoleType::Type).not_null())
                     .col(timestamp(User::CreatedAt).default(Expr::current_timestamp()))
                     .to_owned(),
@@ -31,7 +31,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(DeriveIden)]
-enum User {
+pub enum User {
     Table,
     Id,
     Username,

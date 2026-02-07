@@ -1,0 +1,146 @@
+use crate::m20251230_134748_create_user::*;
+use sea_orm_migration::{prelude::*, schema::*};
+#[derive(DeriveMigrationName)]
+pub struct Migration;
+
+#[async_trait::async_trait]
+impl MigrationTrait for Migration {
+    async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        manager
+            .create_table(
+                Table::create()
+                    .table(UserInfo::Table)
+                    .if_not_exists()
+                    .col(integer_uniq(UserInfo::UserId).primary_key())
+                    .col(char_len(UserInfo::Nickname, 256).default("Mahjong is Fun"))
+                    .col(char_len(UserInfo::Declaration, 1024).default("Rong!"))
+                    .col(
+                        tiny_integer(UserInfo::Age).default(0).check(
+                            Expr::col(UserInfo::Age)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::Age).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::Gender).default(0).check(
+                            Expr::col(UserInfo::Gender)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::Gender).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::MbtiEI).default(0).check(
+                            Expr::col(UserInfo::MbtiEI)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::MbtiEI).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::MbtiNS).default(0).check(
+                            Expr::col(UserInfo::MbtiNS)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::MbtiNS).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::MbtiFT).default(0).check(
+                            Expr::col(UserInfo::MbtiFT)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::MbtiFT).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::MbtiJP).default(0).check(
+                            Expr::col(UserInfo::MbtiJP)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::MbtiJP).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::Speed).default(0).check(
+                            Expr::col(UserInfo::Speed)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::Speed).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::Speek).default(0).check(
+                            Expr::col(UserInfo::Speek)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::Speek).lte(128)),
+                        ),
+                    )
+                    .col(
+                        tiny_integer(UserInfo::Score).default(0).check(
+                            Expr::col(UserInfo::Score)
+                                .gte(-128)
+                                .and(Expr::col(UserInfo::Score).lte(128)),
+                        ),
+                    )
+                    .col(char_len(UserInfo::Location, 1024).default("Zero"))
+                    .col(
+                        double(UserInfo::Lon).default(0).check(
+                            Expr::col(UserInfo::Lon)
+                                .gte(-180)
+                                .and(Expr::col(UserInfo::Lon).lte(180)),
+                        ),
+                    )
+                    .col(
+                        double(UserInfo::Lat).default(0).check(
+                            Expr::col(UserInfo::Lat)
+                                .gte(-90)
+                                .and(Expr::col(UserInfo::Lat).lte(90)),
+                        ),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+        manager
+            .create_foreign_key(
+                sea_query::ForeignKey::create()
+                    .from_tbl(UserInfo::Table)
+                    .from_col(UserInfo::UserId)
+                    .to_tbl(User::Table)
+                    .to_col(User::Id)
+                    .on_delete(ForeignKeyAction::Cascade)
+                    .on_update(ForeignKeyAction::Cascade)
+                    .name("fk_user_id")
+                    .to_owned(),
+            )
+            .await
+    }
+
+    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        manager
+            .drop_foreign_key(
+                ForeignKey::drop()
+                    .name("fk_user_id")
+                    .table(UserInfo::Table)
+                    .to_owned(),
+            )
+            .await?;
+        manager
+            .drop_table(Table::drop().table(UserInfo::Table).to_owned())
+            .await
+    }
+}
+
+#[derive(DeriveIden)]
+enum UserInfo {
+    Table,
+    UserId,
+    Nickname,
+    Declaration,
+    Age,
+    Gender,
+    MbtiEI,
+    MbtiNS,
+    MbtiFT,
+    MbtiJP,
+    Speed,
+    Speek,
+    Score,
+    Location,
+    Lon,
+    Lat,
+}

@@ -7,13 +7,14 @@ use {
     crate::entities::{
         prelude::*,
         sea_orm_active_enums::{RoleActionType, RoleType},
-        user,
+        user, user_info,
     },
     crate::{AppServerState, Claims},
     dioxus::fullstack::{Cookie, TypedHeader},
     dioxus::logger::tracing,
     sea_orm::{
-        ActiveEnum, ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter,
+        ActiveEnum, ActiveModelTrait, ActiveValue::Set, ColumnTrait, DerivePartialModel,
+        EntityTrait, QueryFilter,
     },
 };
 
@@ -90,4 +91,76 @@ pub async fn signup(info: UserSignupInfo) -> Result<()> {
     user.insert(&state.db).await?;
     tracing::debug!("Signup User finished");
     Ok(())
+}
+
+#[cfg(feature = "server")]
+#[derive(DerivePartialModel)]
+#[sea_orm(entity = "user_info::Entity")]
+struct UserKeyInfoModel {
+    pub nickname: String,
+    pub declaration: String,
+    pub score: i16,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct UserKeyInfo {
+    pub nickname: String,
+    pub declaration: String,
+    pub score: i16,
+}
+
+#[cfg(feature = "server")]
+impl From<UserKeyInfoModel> for UserKeyInfo {
+    fn from(value: UserKeyInfoModel) -> Self {
+        Self {
+            nickname: value.nickname,
+            declaration: value.declaration,
+            score: value.score,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct UserAllInfo {
+    pub user_id: i32,
+    pub nickname: String,
+    pub declaration: String,
+    pub age: i16,
+    pub gender: i16,
+    pub mbti_ei: i16,
+    pub mbti_ns: i16,
+    pub mbti_ft: i16,
+    pub mbti_jp: i16,
+    pub speed: i16,
+    pub speek: i16,
+    pub score: i16,
+    pub location: String,
+    pub lon: f64,
+    pub lat: f64,
+}
+
+#[get("/api/user/info", state: State<AppServerState>, header: TypedHeader<Cookie>)]
+pub async fn get_user_key_info() -> Result<Option<UserKeyInfo>> {
+    let token = header
+        .get("math-token")
+        .or_unauthorized("Missing math-token cookie")?;
+    let claims = super::decode_token(token, &state.secret_key)?;
+    let mut key_info_model: Option<UserKeyInfoModel> = UserInfo::find_by_id(claims.id)
+        .into_partial_model()
+        .one(&state.db)
+        .await?;
+    if key_info_model.is_none() {
+        let insert_model = user_info::ActiveModel {
+            user_id: Set(claims.id),
+            ..Default::default()
+        };
+        UserInfo::insert(insert_model)
+            .exec_without_returning(&state.db)
+            .await?;
+        key_info_model = UserInfo::find_by_id(claims.id)
+            .into_partial_model()
+            .one(&state.db)
+            .await?;
+    }
+    Ok(key_info_model.map(|x| x.into()))
 }

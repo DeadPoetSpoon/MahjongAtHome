@@ -133,7 +133,7 @@ impl Default for AppInitServerConfig {
             db_url: Some("postgres://spoon:mahjong_at_home@localhost/mahjong_at_home".to_string()),
             super_username: Some("admin@math.com".to_string()),
             super_password: Some("mahjong_is_fun".to_string()),
-            token_exp_after: Some(0 + 0 * 60 + 0 * 60 * 60 + 1 * 60 * 60 * 24),
+            token_exp_after: Some(60 * 60 * 24),
         }
     }
 }
