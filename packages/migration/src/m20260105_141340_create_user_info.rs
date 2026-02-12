@@ -12,8 +12,8 @@ impl MigrationTrait for Migration {
                     .table(UserInfo::Table)
                     .if_not_exists()
                     .col(integer_uniq(UserInfo::UserId).primary_key())
-                    .col(char_len(UserInfo::Nickname, 256).default("Mahjong is Fun"))
-                    .col(char_len(UserInfo::Declaration, 1024).default("Rong!"))
+                    .col(string_len(UserInfo::Nickname, 256).default("Mahjong is Fun"))
+                    .col(string(UserInfo::Declaration).default("Rong!"))
                     .col(
                         tiny_integer(UserInfo::Age).default(0).check(
                             Expr::col(UserInfo::Age)
@@ -77,7 +77,7 @@ impl MigrationTrait for Migration {
                                 .and(Expr::col(UserInfo::Score).lte(128)),
                         ),
                     )
-                    .col(char_len(UserInfo::Location, 1024).default("Zero"))
+                    .col(string_len(UserInfo::Location, 512).default("Zero of the world"))
                     .col(
                         double(UserInfo::Lon).default(0).check(
                             Expr::col(UserInfo::Lon)

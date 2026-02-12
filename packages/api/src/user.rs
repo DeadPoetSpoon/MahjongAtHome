@@ -120,26 +120,7 @@ impl From<UserKeyInfoModel> for UserKeyInfo {
     }
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct UserAllInfo {
-    pub user_id: i32,
-    pub nickname: String,
-    pub declaration: String,
-    pub age: i16,
-    pub gender: i16,
-    pub mbti_ei: i16,
-    pub mbti_ns: i16,
-    pub mbti_ft: i16,
-    pub mbti_jp: i16,
-    pub speed: i16,
-    pub speek: i16,
-    pub score: i16,
-    pub location: String,
-    pub lon: f64,
-    pub lat: f64,
-}
-
-#[get("/api/user/info", state: State<AppServerState>, header: TypedHeader<Cookie>)]
+#[get("/api/user/key_info", state: State<AppServerState>, header: TypedHeader<Cookie>)]
 pub async fn get_user_key_info() -> Result<Option<UserKeyInfo>> {
     let token = header
         .get("math-token")
@@ -163,4 +144,55 @@ pub async fn get_user_key_info() -> Result<Option<UserKeyInfo>> {
             .await?;
     }
     Ok(key_info_model.map(|x| x.into()))
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct UserAllInfo {
+    pub nickname: String,
+    pub declaration: String,
+    pub age: i16,
+    pub gender: i16,
+    pub mbti_ei: i16,
+    pub mbti_ns: i16,
+    pub mbti_ft: i16,
+    pub mbti_jp: i16,
+    pub speed: i16,
+    pub speek: i16,
+    pub score: i16,
+    pub location: String,
+    pub lon: f64,
+    pub lat: f64,
+}
+
+#[cfg(feature = "server")]
+impl From<user_info::Model> for UserAllInfo {
+    fn from(value: user_info::Model) -> Self {
+        Self {
+            nickname: value.nickname.clone(),
+            declaration: value.declaration.clone(),
+            age: value.age,
+            gender: value.gender,
+            mbti_ei: value.mbti_ei,
+            mbti_ns: value.mbti_ns,
+            mbti_ft: value.mbti_ft,
+            mbti_jp: value.mbti_jp,
+            speed: value.speed,
+            speek: value.speek,
+            score: value.score,
+            location: value.location.clone(),
+            lon: value.lon,
+            lat: value.lat,
+        }
+    }
+}
+
+#[get("/api/user/info", state: State<AppServerState>, header: TypedHeader<Cookie>)]
+pub async fn get_user_info() -> Result<Option<UserAllInfo>> {
+    let token = header
+        .get("math-token")
+        .or_unauthorized("Missing math-token cookie")?;
+    let claims = super::decode_token(token, &state.secret_key)?;
+    let info_model: Option<user_info::Model> =
+        UserInfo::find_by_id(claims.id).one(&state.db).await?;
+    Ok(info_model.map(|x| x.into()))
 }

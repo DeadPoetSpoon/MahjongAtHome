@@ -103,7 +103,7 @@ impl AppServerState {
 
         self.db = db;
         self.session_id = uuid::Uuid::new_v4();
-        tracing::debug!("INIT: AppServerState Init Finished: {:?}", self);
+        tracing::debug!("INIT: AppServerState Init Finished");
         Ok(())
     }
 }

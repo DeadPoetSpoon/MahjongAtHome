@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_fullstack::{FullstackContext, StatusCode};
 use ui::Navbar;
-use views::{Home, Login, Manage};
+use views::{Home, Login, Manage, UserInfo};
 
 mod views;
 
@@ -15,6 +15,8 @@ enum Route {
     Login {},
     #[route("/manage")]
     Manage {},
+    #[route("/user_info")]
+    UserInfo{},
     #[route("/:..route")]
     PageNotFound {
         route: Vec<String>,
@@ -69,6 +71,7 @@ fn App() -> Element {
         // Global app resources
         document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
+        document::Title{"MAtH"}
 
         Router::<Route> {}
     }
@@ -79,7 +82,6 @@ fn App() -> Element {
 #[component]
 fn WebMainLayout() -> Element {
     rsx! {
-
         Navbar {
             ul{
                 li{
@@ -88,27 +90,16 @@ fn WebMainLayout() -> Element {
                         "Home"
                     }
                 }
-                li{
-                    details {
-                        class: "dropdown",
-                        summary {
-                            "M"
-                        }
-                        ul {
-                            dir: "rtl",
-                            li {
-                                Link {
-                                    to: Route::Login {},
-                                    "Login"
-                                }
-                            }
-                            li {
-                                Link {
-                                    to: Route::Manage {},
-                                    "Manage"
-                                }
-                            }
-                        }
+                li {
+                    Link {
+                        to: Route::Login {},
+                        "Login"
+                    }
+                }
+                li {
+                    Link {
+                        to: Route::Manage {},
+                        "Manage"
                     }
                 }
             }

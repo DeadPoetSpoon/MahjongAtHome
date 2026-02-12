@@ -6,9 +6,10 @@ pub fn Login() -> Element {
     rsx! {
         div {
             class: "container",
-            justify_items: "center",
+            display: "flex",
+            justify_content: "center",
             h3 {
-                "Riichi " u{"M"} "ahjong" u { "At" } " " u { "H" } "ome"
+                "Riichi " u{"M"} "ahjong " u { "At" } " " u { "H" } "ome"
             },
             h3 {
 

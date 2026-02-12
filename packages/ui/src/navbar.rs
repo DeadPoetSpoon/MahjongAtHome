@@ -6,7 +6,6 @@ const MAIN_CSS: Asset = asset!("/assets/pico.min.css");
 pub fn Navbar(children: Element) -> Element {
     rsx! {
         document::Link { rel: "stylesheet", href: MAIN_CSS }
-
         header {
             class: "container",
             id: "navbar",

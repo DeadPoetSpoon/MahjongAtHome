@@ -1,11 +1,16 @@
 use dioxus::prelude::*;
-use ui::info::UserKeyInfoCard;
-use ui::Echo;
+use ui::info::UserKeyInfoSpan;
 
 #[component]
 pub fn Home() -> Element {
     rsx! {
-        UserKeyInfoCard { }
-        Echo {}
+        div {
+            h3 {
+                "Hello, "
+                UserKeyInfoSpan { }
+            }
+        }
+
+        // Echo {}
     }
 }
